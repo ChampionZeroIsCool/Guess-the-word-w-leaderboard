@@ -1,4 +1,9 @@
 import { useState } from 'react'
+
+import { HomeNav }  from './HomeNav.jsx'
+import { GameNav }  from './GameNav.jsx'
+import { LeaderboardNav }  from './LeaderboardNav.jsx'
+
 import {
   Dialog,
   DialogBackdrop,
@@ -24,7 +29,7 @@ function classNames(...classes) {
 
 export default function SidebarLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [currentNav, setCurrentNav] = useState('Game')
+  const [currentNav, setCurrentNav] = useState('Home')
   console.log(currentNav)
 
   
@@ -136,16 +141,17 @@ export default function SidebarLayout() {
               <span className="sr-only">Open sidebar</span>
               <Bars3Icon aria-hidden="true" className="size-6" />
             </button>
+            <p className="text-gray-900/80 text-2xl font-semibold -m-2 text-center w-full">Guess The Word</p>
           </div>
 
           <main className="py-10">
             <div className="px-4 sm:px-6 lg:px-8">
             { currentNav === 'Home' ?
-                null/*home components*/ : null }
+                <HomeNav /> : null }
               { currentNav === 'Game' ?
-                  null/*game components*/ : null }
+                  <GameNav /> : null }
                   { currentNav === 'Leaderboard' ?
-                    null/*leaderboard components*/ : null }
+                    <LeaderboardNav /> : null }
             </div>
           </main>
         </div>
