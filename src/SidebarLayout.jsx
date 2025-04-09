@@ -141,13 +141,13 @@ export default function SidebarLayout() {
               <span className="sr-only">Open sidebar</span>
               <Bars3Icon aria-hidden="true" className="size-6" />
             </button>
-            <p className="text-gray-900/80 text-2xl font-semibold -m-2 text-center w-full">Guess The Word</p>
+            <p className="text-gray-900 text-2xl font-semibold -m-2 text-center w-full">Guess the Word</p>
           </div>
 
           <main className="py-10">
             <div className="px-4 sm:px-6 lg:px-8">
             { currentNav === 'Home' ?
-                <HomeNav /> : null }
+                <HomeNav setCurrentNav={setCurrentNav}/> : null }
               { currentNav === 'Game' ?
                   <GameNav /> : null }
                   { currentNav === 'Leaderboard' ?
