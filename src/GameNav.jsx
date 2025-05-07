@@ -1,13 +1,20 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 export function GameNav() {
     const [currentWordLength, setCurrentWordLength] = useState(4)
-    console.log(currentWordLength)
+    let wordBank = ['MOVE', 'APPLE', 'BANANA', 'DEFAULT', 'SELECTED', 'PINEAPPLE', 'PINEAPPLES', 'WATERMELONS', 'LEADERBOARDS'];
+    const [currentWord, setCurrentWord] = useState(wordBank[currentWordLength - 4])
+    const [guessedLetters, setGuessedLetters] = useState(['A', 'E', 'I', 'P'])
+
+    useEffect(() => {
+        setCurrentWord(wordBank[currentWordLength - 4])
+    }, [currentWordLength])
+
     return (
         <div>
              <p className="text-gray-900 font-semibold text-6xl pb-5">Game</p>
-             <div className="text-gray-900 text-2xl gap-1 flex">
-                <label htmlFor="wordLength" className="pl-[5px]">Select word length:</label>
+             <div className="text-gray-900 text-2xl gap-1 flex pb-10">
+                <label htmlFor="wordLength" className="pl-1">Select word length:</label>
                 <select onChange={(e) => setCurrentWordLength(Number(e.target.value))} name="wordLength" className="cursor-pointer">
                     <option selected={currentWordLength == 4} defaultValue={4}>4</option>
                     <option selected={currentWordLength == 5} defaultValue={5}>5</option>
@@ -27,7 +34,25 @@ export function GameNav() {
                     setCurrentWordLength(random);
                 }} className='cursor-pointer border-2 border-black px-3 rounded-full flex gap-2 items-center hover:font-bold hover:border-4'>Randomise</button>
              </div>
-             <div></div>
+             <div className="text-gray-900 font-semibold text-6xl pb-5 pl-1 flex gap-6">
+                {currentWord.split('').map((letter) => {
+                    if (guessedLetters.includes(letter)) {
+                        return (
+                            <div className="flex flex-col items-center">
+                                <span className="text-6xl">{letter}</span>
+                                <span className="text-6xl -mt-14">__</span>
+                            </div>
+                        )
+                    } else {
+                        return (
+                            <div className="flex flex-col items-center">
+                                <span className="text-6xl">&nbsp;</span>
+                                <span className="text-6xl -mt-14">__</span>
+                            </div>
+                        )
+                    }
+                })}
+             </div>
         </div>
     )
 }
