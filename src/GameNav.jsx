@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react'
+import {
+    ArrowPathIcon
+} from '@heroicons/react/24/outline'
 
 export function GameNav() {
     const [currentWordLength, setCurrentWordLength] = useState(4)
@@ -11,10 +14,10 @@ export function GameNav() {
     }, [currentWordLength])
 
     return (
-        <div>
-             <p className="text-gray-900 font-semibold text-6xl pb-5">Game</p>
-             <div className="text-gray-900 text-2xl gap-1 flex pb-10">
-                <label htmlFor="wordLength" className="pl-1">Select word length:</label>
+        <div className="text-gray-900">
+             <p className="font-semibold text-6xl pb-5">Game</p>
+             <div className="text-2xl gap-1 flex pb-8 items-center">
+                <label htmlFor="wordLength">Select word length:</label>
                 <select onChange={(e) => setCurrentWordLength(Number(e.target.value))} name="wordLength" className="cursor-pointer">
                     <option selected={currentWordLength == 4} defaultValue={4}>4</option>
                     <option selected={currentWordLength == 5} defaultValue={5}>5</option>
@@ -32,9 +35,11 @@ export function GameNav() {
                         random = Math.round((Math.random() * (8) + 4));
                     }
                     setCurrentWordLength(random);
-                }} className='cursor-pointer border-2 border-black px-3 rounded-full flex gap-2 items-center hover:font-bold hover:border-4'>Randomise</button>
+                }} className='cursor-pointer border-2 border-black p-2.5 px-3 rounded-full group hover:font-bold flex gap-2 items-center'>Randomise
+                    <ArrowPathIcon className="h-6 w-6 stroke-2 group-hover:stroke-4"></ArrowPathIcon>
+                </button>
              </div>
-             <div className="text-gray-900 font-semibold text-6xl pb-5 pl-1 flex gap-6">
+             <div className="font-semibold text-6xl pb-10 flex gap-6">
                 {currentWord.split('').map((letter) => {
                     if (guessedLetters.includes(letter)) {
                         return (
@@ -52,6 +57,20 @@ export function GameNav() {
                         )
                     }
                 })}
+             </div>
+             <div className="flex items-center pb-2">
+                <p className="text-2xl">Enter a letter:</p>
+                <input type="text" onInput={(e) => {e.target.value = e.target.value.toUpperCase().replace(/[^A-Za-z]/g, '')}} className="text-2xl border-2 border-black rounded-xl p-2 ml-2" maxLength={1} />
+             </div>
+             <p className="text-2xl pb-5">Already guessed</p>
+             <div className="text-2xl">
+                <p>Guessed letters: A, E, I, P</p>
+                <p className="pb-3">Guesses left: 10</p>
+                <p className="pb-7">____________________</p>
+             </div>
+             <div className="text-2xl">
+                <p>Wins: 1</p>
+                <p>Losses: 1</p>
              </div>
         </div>
     )
