@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import {
     ArrowPathIcon,
     ArrowRightIcon
@@ -10,11 +10,54 @@ export function GameNav() {
     const [currentWord, setCurrentWord] = useState('')
     const [guessedLetters, setGuessedLetters] = useState([])
     const [guess, setGuess] = useState('')
+    const [guessesLeft, setGuessesLeft] = useState(10)
+    const guessResult = useRef(null)
+
+    const [wins, setWins] = useState(0)
+    const [losses, setLosses] = useState(0)
+    const [totalGames, setTotalGames] = useState(0)
+    const [winsPercentage, setWinsPercentage] = useState(0)
+    const [lossesPercentage, setLossesPercentage] = useState(0)
+
+    const [gameResult, setGameResult] = useState(null)
+    const [showSummary, setShowSummary] = useState(false)
+
     const handleGuess = (letter) => {
-        if (!guessedLetters.includes(letter) && guess.length === 1) {
-            setGuessedLetters(guessedLetters => [...guessedLetters, letter])
+        if (guess.length === 1) {
+            if (!guessedLetters.includes(letter)) {
+                const updatedGuessedLetters = [...guessedLetters, letter]
+                setGuessedLetters(updatedGuessedLetters)
+                if (currentWord.includes(letter)) {
+                    if ([...new Set(currentWord)].every(l => updatedGuessedLetters.includes(l))) {
+                        guessResult.current.innerHTML = `Correct, '${letter}' is in the word`
+                        setWins(wins => wins + 1)
+                        setWinsPercentage(Math.round((wins + 1) / (totalGames + 1) * 100))
+                        setLossesPercentage(Math.round((losses) / (totalGames + 1) * 100))
+                        setTotalGames(totalGames => totalGames + 1)
+                        setGameResult('win')
+                        setShowSummary(true)
+                    } else {
+                        guessResult.current.innerHTML = `Correct, '${letter}' is in the word`
+                    }
+                } else {
+                    if (guessesLeft > 1) {
+                        guessResult.current.innerHTML = `Wrong, '${letter}' is not in the word`
+                        setGuessesLeft(guessesLeft => guessesLeft - 1)
+                    } else {
+                        guessResult.current.innerHTML = `Wrong, '${letter}' is not in the word`
+                        setLosses(losses => losses + 1)
+                        setWinsPercentage(Math.round((wins) / (totalGames + 1) * 100))
+                        setLossesPercentage(Math.round((losses + 1) / (totalGames + 1) * 100))
+                        setTotalGames(totalGames => totalGames + 1)
+                        setGameResult('loss')
+                        setShowSummary(true)
+                    }
+                }
+            } else {
+                    guessResult.current.innerHTML = `'${letter}' has already been guessed`
+            }
+            setGuess('')
         }
-        setGuess('')
     }
     const handleKeyDown = (event) => {
         if (event.key === 'Enter') {
@@ -79,28 +122,64 @@ export function GameNav() {
              </div>
              <div className='flex relative items-center pb-1'>
                 <p className='text-2xl'>Enter a letter:</p>
-                <button onClick={handleButtonClick} className='cursor-pointer absolute left-[356.9px] border-2 border-black p-1.5 px-1.75 rounded-xl'>
+                <button onClick={handleButtonClick} className='cursor-pointer absolute left-[357px] border-2 border-black p-1.5 px-1.75 rounded-xl'>
                     <ArrowRightIcon className='h-6 w-6 stroke-2 hover:stroke-4'></ArrowRightIcon>
                 </button>
                 <input type='text' value={guess} onChange={handleChange} onKeyDown={handleKeyDown} onInput={(e) => {e.target.value = e.target.value.toUpperCase().replace(/[^A-Za-z]/g, '')}} className='text-2xl border-2 border-black rounded-xl p-2 ml-2' placeholder='A' maxLength={1}></input>
              </div>
-
-             <p className='font-semibold text-2xl pb-5'>'E' has already been guessed</p>
-             <div className='text-2xl'>
-                <p>Guessed letters: {guessedLetters.sort().map((letter, index) => {
-                    const isLast = index === guessedLetters.length - 1;
-                    return (
-                        <span key={index} className='text-2xl'>{letter}{!isLast && ', '}</span>
-                    )
-                })}</p>
-                <p className='pb-3'>Guesses left: 10</p>
-                <p className='pb-7'>____________________</p>
+             <p ref={guessResult} className='font-semibold text-2xl'>Guess a letter</p>
+             <div className='text-2xl pt-5'>
+                {gameResult === 'win' && showSummary && (
+                    <div>
+                        <p className='font-semibold pb-7'>You win, the word was '{currentWord}'</p>
+                        <button onClick={() => {
+                                setGuessesLeft(10);
+                                setGuessedLetters([]);
+                                const word = fileText.split('\n').filter((word) => word.length === currentWordLength)[Math.floor(Math.random() * fileText.split('\n').filter((word) => word.length === currentWordLength).length)].toUpperCase();
+                                setCurrentWord(word);
+                                setGuess('');
+                                guessResult.current.innerHTML = 'Guess a letter';
+                                setGameResult(null);
+                                setShowSummary(false);
+                        }} className='cursor-pointer border-2 border-black p-2.5 px-3 rounded-full group hover:font-bold flex gap-2 items-center'> Play again?
+                            <ArrowPathIcon className='h-6 w-6 stroke-2 group-hover:stroke-4' />
+                        </button>
+                    </div>
+                )}
+                {gameResult === 'loss' && showSummary && (
+                    <div>
+                        <p className='font-semibold pb-7'>You lose, the word was '{currentWord}'</p>
+                        <button onClick={() => {
+                                setGuessesLeft(10);
+                                setGuessedLetters([]);
+                                const word = fileText.split('\n').filter((word) => word.length === currentWordLength)[Math.floor(Math.random() * fileText.split('\n').filter((word) => word.length === currentWordLength).length)].toUpperCase();
+                                setCurrentWord(word);
+                                setGuess('');
+                                guessResult.current.innerHTML = 'Guess a letter';
+                                setGameResult(null);
+                                setShowSummary(false);
+                        }} className='cursor-pointer border-2 border-black p-2.5 px-3 rounded-full group hover:font-bold flex gap-2 items-center'> Play again?
+                            <ArrowPathIcon className='h-6 w-6 stroke-2 group-hover:stroke-4' />
+                        </button>
+                    </div>
+                )}
+                {!showSummary && (
+                    <div>
+                        <p>Guessed letters: {
+                            guessedLetters.sort().map((letter, index) => {
+                                const isLast = index === guessedLetters.length - 1;
+                                return <span key={index}>{letter}{!isLast && ', '}</span>
+                        })}</p>
+                        <p className='text-2xl'>Guesses left: {guessesLeft}</p>
+                    </div>
+                )}
              </div>
              <div className='text-2xl'>
+                <p className='pb-7 pt-3'>____________________</p>
                 <p>Stats:</p>
-                <p>Wins: 1 (50%)</p>
-                <p>Losses: 1 (50%)</p>
-                <p>Total games: 2</p>
+                <p>Wins: {wins} ({winsPercentage}%)</p>
+                <p>Losses: {losses} ({lossesPercentage}%)</p>
+                <p>Total games: {totalGames}</p>
              </div>
         </div>
     )
