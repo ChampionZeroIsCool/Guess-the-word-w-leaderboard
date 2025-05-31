@@ -10,7 +10,7 @@ export function HomeNav(props) {
             Welcome to Guess the Word!<br></br>
             This is a word guessing game similar to hangman. The aim of the game is to guess a mystery word that is 4-10 letters long.<br></br>
             Each turn you will pick a letter and if it is in the word, it will be revealed. If it is not in the word, you get one less chance at guessing the word.<br></br>
-            You have 10 chances to guess the word. If you run out of guesses, you lose the game. If you guess the full word before that, you win.<br></br>
+            You have 2 more chances than the word length to guess the word (capped at 10). If you run out of guesses, you lose the game. If you guess the full word before that, you win.<br></br>
             <br></br>
             <button onClick={() => props.setCurrentNav('Game')} className='cursor-pointer border-2 border-black p-2.5 px-3 rounded-full flex gap-2 items-center hover:font-bold group'>Play now 
                 <ArrowRightIcon className='h-6 w-6 stroke-2 group-hover:stroke-4'></ArrowRightIcon>

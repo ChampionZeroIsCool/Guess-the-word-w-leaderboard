@@ -29,10 +29,11 @@ function classNames(...classes) {
 
 export default function SidebarLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+
   const [currentNav, setCurrentNav] = useState('Home')
   console.log(currentNav)
-
   
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 
   return (
     <>
@@ -76,13 +77,18 @@ export default function SidebarLayout() {
                           <li key={item.name}>
                             <button
                               onClick={() => {
+                                if (hasUnsavedChanges) {
+                                  const confirmSwitch = window.confirm('You have unsaved progress. Are you sure you want to leave?')
+                                  if (!confirmSwitch) return
+                                }
                                 setCurrentNav(item.name)
+                                setHasUnsavedChanges(false)
                                 setSidebarOpen(false)
                               }}
                               className={classNames(
                                 item.name === currentNav
                                   ? 'bg-gray-800 text-white'
-                                  : 'text-gray-400 hover:bg-gray-800 hover:text-white',
+                                  : 'cursor-pointer text-gray-400 hover:bg-gray-800 hover:text-white',
                                 'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold',
                               )}
                             >
@@ -113,13 +119,18 @@ export default function SidebarLayout() {
                     {navigation.map((item) => (
                       <li key={item.name}>
                         <button
-                          onClick={() =>
+                          onClick={() => {
+                            if (hasUnsavedChanges) {
+                              const confirmSwitch = window.confirm('You have unsaved progress. Are you sure you want to leave?')
+                              if (!confirmSwitch) return
+                            }
                             setCurrentNav(item.name)
-                          }
+                            setHasUnsavedChanges(false)
+                          }}
                           className={classNames(
                             item.name === currentNav
                               ? 'bg-gray-800 text-white'
-                              : 'text-gray-400 hover:bg-gray-800 hover:text-white',
+                              : 'cursor-pointer text-gray-400 hover:bg-gray-800 hover:text-white',
                             'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold',
                           )}
                         >
@@ -146,12 +157,12 @@ export default function SidebarLayout() {
 
           <main className='py-10'>
             <div className='px-4 sm:px-6 lg:px-8'>
-            { currentNav === 'Home' ?
-                <HomeNav setCurrentNav={setCurrentNav}/> : null }
-              { currentNav === 'Game' ?
-                  <GameNav /> : null }
-                  { currentNav === 'Leaderboard' ?
-                    <LeaderboardNav /> : null }
+              { currentNav === 'Home' && <HomeNav setCurrentNav={setCurrentNav}/> }
+              { currentNav === 'Game' && <GameNav 
+                hasUnsavedChanges={hasUnsavedChanges}
+                setHasUnsavedChanges={setHasUnsavedChanges}
+              /> }
+              { currentNav === 'Leaderboard' && <LeaderboardNav /> }
             </div>
           </main>
         </div>
