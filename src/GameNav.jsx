@@ -41,6 +41,7 @@ export function GameNav(props) {
             const updatedGuessedLetters = [...guessedLetters, letter]
             setGuessedLetters(updatedGuessedLetters)
             props.setHasUnsavedChanges(true)
+            guessResult.current.className = 'text-gray-900'
 
             if (currentWord.includes(letter)) {
                 guessResult.current.innerHTML = `Correct, <b>'${letter}'</b> is in the word`
@@ -72,6 +73,7 @@ export function GameNav(props) {
                 }
             }
         } else {
+            guessResult.current.className = 'text-red-500'
             guessResult.current.innerHTML = `<b>'${letter}'</b> has already been guessed`
         }
         setGuess('')

@@ -17,6 +17,7 @@ import {
   PuzzlePieceIcon,
   HomeIcon,
 } from '@heroicons/react/24/outline'
+import { ExclamationTriangleIcon } from '@heroicons/react/24/solid'
 const navigation = [
   { name: 'Home', href: '#', icon: HomeIcon, current: true },
   { name: 'Game', href: '#', icon: PuzzlePieceIcon, current: false },
@@ -34,6 +35,22 @@ export default function SidebarLayout() {
   console.log(currentNav)
   
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [showConfirmBox, setShowConfirmBox] = useState(false)
+  const [pendingNav, setPendingNav] = useState(null)
+  const handleUnsavedChanges = (nextNav) => {
+    if (hasUnsavedChanges) {
+      setPendingNav(() => () => {
+        setCurrentNav(nextNav)
+        setHasUnsavedChanges(false)
+        setShowConfirmBox(false)
+        setSidebarOpen(false)
+      })
+      setShowConfirmBox(true)
+    } else {
+      setCurrentNav(nextNav)
+      setSidebarOpen(false)
+    }
+  }
 
   return (
     <>
@@ -76,15 +93,7 @@ export default function SidebarLayout() {
                         {navigation.map((item) => (
                           <li key={item.name}>
                             <button
-                              onClick={() => {
-                                if (hasUnsavedChanges) {
-                                  const confirmSwitch = window.confirm('You have unsaved progress. Are you sure you want to leave?')
-                                  if (!confirmSwitch) return
-                                }
-                                setCurrentNav(item.name)
-                                setHasUnsavedChanges(false)
-                                setSidebarOpen(false)
-                              }}
+                              onClick={() => {handleUnsavedChanges(item.name)}}
                               className={classNames(
                                 item.name === currentNav
                                   ? 'bg-gray-800 text-white'
@@ -119,15 +128,8 @@ export default function SidebarLayout() {
                     {navigation.map((item) => (
                       <li key={item.name}>
                         <button
-                          onClick={() => {
-                            if (hasUnsavedChanges) {
-                              const confirmSwitch = window.confirm('You have unsaved progress. Are you sure you want to leave?')
-                              if (!confirmSwitch) return
-                            }
-                            setCurrentNav(item.name)
-                            setHasUnsavedChanges(false)
-                          }}
-                          className={classNames(
+                          onClick={() => {handleUnsavedChanges(item.name)}}
+                            className={classNames(
                             item.name === currentNav
                               ? 'bg-gray-800 text-white'
                               : 'cursor-pointer text-gray-400 hover:bg-gray-800 hover:text-white',
@@ -154,6 +156,41 @@ export default function SidebarLayout() {
             </button>
             <p className='text-gray-900 text-2xl font-semibold -m-2 text-center w-full'>Guess the Word</p>
           </div>
+
+          {showConfirmBox && (
+            <div className='fixed inset-0 z-50 flex items-center justify-center bg-gray-900/75'>
+              <div className='bg-white rounded-lg p-6 place-items-center relative'>
+                <button
+                  onClick={() => setShowConfirmBox(false)}
+                  className='absolute top-3 right-3 text-gray-900'
+                >
+                  <XMarkIcon className='h-6 w-6 stroke-2 hover:stroke-4 cursor-pointer' />
+                </button>
+                <div className='flex items-center mb-4 mt-1'>
+                  <ExclamationTriangleIcon className='h-12 w-12 text-yellow-400 mr-4 -mb-1.5' />
+                  <p className='text-4xl font-semibold'>Are you sure?</p>
+                </div>
+                <p className='mb-4 -mt-1'>Switching menu will not save current game progress.</p>
+                <div className='mb-2'>
+                  <button
+                    onClick={() => { if (pendingNav) pendingNav() }}
+                    className='cursor-pointer w-40 py-2 mr-4 bg-green-400 text-white rounded-lg hover:bg-green-800'
+                  >
+                    Yes
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowConfirmBox(false)
+                      setPendingNav(null)
+                    }}
+                    className='cursor-pointer w-40 py-2 bg-red-400 text-white rounded-lg hover:bg-red-800'
+                  >
+                    No
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           <main className='py-10'>
             <div className='px-4 sm:px-6 lg:px-8'>
