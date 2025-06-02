@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { HomeNav }  from './HomeNav.jsx'
 import { GameNav }  from './GameNav.jsx'
@@ -30,27 +30,80 @@ function classNames(...classes) {
 
 export default function SidebarLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
-
   const [currentNav, setCurrentNav] = useState('Home')
   console.log(currentNav)
+
+  const [wins, setWins] = useState(() => {
+    const storedWins = localStorage.getItem('wins')
+    return storedWins ? parseInt(storedWins, 10) : 0
+  })
+  const [losses, setLosses] = useState(() => {
+    const storedLosses = localStorage.getItem('losses')
+    return storedLosses ? parseInt(storedLosses, 10) : 0
+  })
+  const [totalGames, setTotalGames] = useState(() => {
+    const storedWins = localStorage.getItem('wins')
+    const storedLosses = localStorage.getItem('losses')
+    return (storedWins ? parseInt(storedWins, 10) : 0) + (storedLosses ? parseInt(storedLosses, 10) : 0)
+  })
+  const [winsPercentage, setWinsPercentage] = useState(() => {
+    const storedWins = localStorage.getItem('wins')
+    const storedLosses = localStorage.getItem('losses')
+    const wins = storedWins ? parseInt(storedWins, 10) : 0
+    const losses = storedLosses ? parseInt(storedLosses, 10) : 0
+    const totalGames = wins + losses
+    return totalGames > 0 ? Math.round((wins / totalGames) * 100) : 0
+  })
+  const [lossesPercentage, setLossesPercentage] = useState(() => {  
+    const storedWins = localStorage.getItem('wins')
+    const storedLosses = localStorage.getItem('losses')
+    const wins = storedWins ? parseInt(storedWins, 10) : 0
+    const losses = storedLosses ? parseInt(storedLosses, 10) : 0
+    const totalGames = wins + losses
+    return totalGames > 0 ? Math.round((losses / totalGames) * 100) : 0
+  })
   
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
-  const [showConfirmBox, setShowConfirmBox] = useState(false)
+  const [showExitGameConfirmBox, setShowExitGameConfirmBox] = useState(false)
   const [pendingNav, setPendingNav] = useState(null)
   const handleUnsavedChanges = (nextNav) => {
     if (hasUnsavedChanges) {
       setPendingNav(() => () => {
         setCurrentNav(nextNav)
         setHasUnsavedChanges(false)
-        setShowConfirmBox(false)
+        setShowExitGameConfirmBox(false)
         setSidebarOpen(false)
       })
-      setShowConfirmBox(true)
+      setShowExitGameConfirmBox(true)
     } else {
       setCurrentNav(nextNav)
       setSidebarOpen(false)
     }
   }
+
+  const [showResetConfirmBox, setShowResetConfirmBox] = useState(false)
+  const handleReset = () => setShowResetConfirmBox(true)
+
+  useEffect(() => {
+    const storedWins = localStorage.getItem('wins')
+    const storedLosses = localStorage.getItem('losses')
+    const storedTotalGames = (storedWins ? parseInt(storedWins, 10) : 0) + (storedLosses ? parseInt(storedLosses, 10) : 0)
+    const storedWinsPercentage = storedTotalGames > 0 ? Math.round((parseInt(storedWins, 10) / storedTotalGames) * 100) : 0
+    const storedLossesPercentage = storedTotalGames > 0 ? Math.round((parseInt(storedLosses, 10) / storedTotalGames) * 100) : 0
+    if (storedWins !== null) setWins(parseInt(storedWins))
+    if (storedLosses !== null) setLosses(parseInt(storedLosses))
+    if (storedTotalGames !== null) setTotalGames(storedTotalGames)
+    if (storedWinsPercentage !== null) setWinsPercentage(storedWinsPercentage)
+    if (storedLossesPercentage !== null) setLossesPercentage(storedLossesPercentage)
+  }, [])
+
+  useEffect(() => {
+    localStorage.setItem('wins', wins);
+    localStorage.setItem('losses', losses);
+    localStorage.setItem('totalGames', totalGames);
+    localStorage.setItem('winsPercentage', winsPercentage);
+    localStorage.setItem('lossesPercentage', lossesPercentage);
+  }, [wins, losses, totalGames, winsPercentage, lossesPercentage]);
 
   return (
     <>
@@ -157,21 +210,21 @@ export default function SidebarLayout() {
             <p className='text-gray-900 text-2xl font-semibold -m-2 text-center w-full'>Guess the Word</p>
           </div>
 
-          {showConfirmBox && (
+          {showExitGameConfirmBox && (
             <div className='fixed inset-0 z-50 flex items-center justify-center bg-gray-900/75'>
               <div className='bg-white rounded-lg p-6 place-items-center relative'>
                 <button
-                  onClick={() => setShowConfirmBox(false)}
+                  onClick={() => setShowExitGameConfirmBox(false)}
                   className='absolute top-3 right-3 text-gray-900'
                 >
                   <XMarkIcon className='h-6 w-6 stroke-2 hover:stroke-4 cursor-pointer' />
                 </button>
-                <div className='flex items-center mb-4 mt-1'>
-                  <ExclamationTriangleIcon className='h-12 w-12 text-yellow-400 mr-4 -mb-1.5' />
-                  <p className='text-4xl font-semibold'>Are you sure?</p>
+                <div className='flex items-center mb-4'>
+                  <ExclamationTriangleIcon className='h-12 w-12 text-yellow-400 mr-4 -mb-1' />
+                  <p className='text-4xl font-semibold mb-1'>Exit game?</p>
                 </div>
-                <p className='mb-4 -mt-1'>Switching menu will not save current game progress.</p>
-                <div className='mb-2'>
+                <p className='mb-4 -mt-1.25'>Switching menu will not save current game progress.</p>
+                <div>
                   <button
                     onClick={() => { if (pendingNav) pendingNav() }}
                     className='cursor-pointer w-40 py-2 mr-4 bg-green-400 text-white rounded-lg hover:bg-green-800'
@@ -180,9 +233,53 @@ export default function SidebarLayout() {
                   </button>
                   <button
                     onClick={() => {
-                      setShowConfirmBox(false)
+                      setShowExitGameConfirmBox(false)
                       setPendingNav(null)
                     }}
+                    className='cursor-pointer w-40 py-2 bg-red-400 text-white rounded-lg hover:bg-red-800'
+                  >
+                    No
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {showResetConfirmBox && (
+            <div className='fixed inset-0 z-50 flex items-center justify-center bg-gray-900/75'>
+              <div className='bg-white rounded-lg p-6 place-items-center relative'>
+                <button
+                  onClick={() => setShowResetConfirmBox(false)}
+                  className='absolute top-3 right-3 text-gray-900'
+                >
+                  <XMarkIcon className='h-6 w-6 stroke-2 hover:stroke-4 cursor-pointer' />
+                </button>
+                <div className='flex items-center mb-4'>
+                  <ExclamationTriangleIcon className='h-12 w-12 text-yellow-400 mr-4 -mb-1' />
+                  <p className='text-4xl font-semibold mb-1'>Reset score?</p>
+                </div>
+                <p className='mb-4 -mt-1.25'>This cannot be undone. Leaderboard will be updated.</p>
+                <div>
+                  <button
+                    onClick={() => {
+                      setWins(0)
+                      setLosses(0)
+                      setTotalGames(0)
+                      setWinsPercentage(0)
+                      setLossesPercentage(0)
+                      localStorage.removeItem('wins')
+                      localStorage.removeItem('losses')
+                      localStorage.removeItem('totalGames')
+                      localStorage.removeItem('winsPercentage')
+                      localStorage.removeItem('lossesPercentage')
+                      setShowResetConfirmBox(false)
+                    }}
+                    className='cursor-pointer w-40 py-2 mr-4 bg-green-400 text-white rounded-lg hover:bg-green-800'
+                  >
+                    Yes
+                  </button>
+                  <button
+                    onClick={() => { setShowResetConfirmBox(false) }}
                     className='cursor-pointer w-40 py-2 bg-red-400 text-white rounded-lg hover:bg-red-800'
                   >
                     No
@@ -198,6 +295,17 @@ export default function SidebarLayout() {
               { currentNav === 'Game' && <GameNav 
                 hasUnsavedChanges={hasUnsavedChanges}
                 setHasUnsavedChanges={setHasUnsavedChanges}
+                wins={wins}
+                setWins={setWins}
+                losses={losses}
+                setLosses={setLosses}
+                totalGames={totalGames}
+                setTotalGames={setTotalGames}
+                winsPercentage={winsPercentage}
+                setWinsPercentage={setWinsPercentage}
+                lossesPercentage={lossesPercentage}
+                setLossesPercentage={setLossesPercentage}
+                handleReset={handleReset}
               /> }
               { currentNav === 'Leaderboard' && <LeaderboardNav /> }
             </div>
