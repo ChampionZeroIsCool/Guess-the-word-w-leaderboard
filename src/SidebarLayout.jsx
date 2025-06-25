@@ -18,6 +18,7 @@ import {
   HomeIcon,
 } from '@heroicons/react/24/outline'
 import { ExclamationTriangleIcon } from '@heroicons/react/24/solid'
+
 const navigation = [
   { name: 'Home', href: '#', icon: HomeIcon, current: true },
   { name: 'Game', href: '#', icon: PuzzlePieceIcon, current: false },
@@ -84,6 +85,11 @@ export default function SidebarLayout() {
   const [showResetConfirmBox, setShowResetConfirmBox] = useState(false)
   const handleReset = () => setShowResetConfirmBox(true)
 
+  const [username, setUsername] = useState(() => {
+    const storedUsername = localStorage.getItem('username')
+    return storedUsername ? storedUsername : ''
+  })
+
   useEffect(() => {
     const storedWins = localStorage.getItem('wins')
     const storedLosses = localStorage.getItem('losses')
@@ -103,7 +109,8 @@ export default function SidebarLayout() {
     localStorage.setItem('totalGames', totalGames);
     localStorage.setItem('winsPercentage', winsPercentage);
     localStorage.setItem('lossesPercentage', lossesPercentage);
-  }, [wins, losses, totalGames, winsPercentage, lossesPercentage]);
+    localStorage.setItem('username', username);
+  }, [wins, losses, totalGames, winsPercentage, lossesPercentage, username]);
 
   return (
     <>
@@ -307,7 +314,12 @@ export default function SidebarLayout() {
                 setLossesPercentage={setLossesPercentage}
                 handleReset={handleReset}
               /> }
-              { currentNav === 'Leaderboard' && <LeaderboardNav /> }
+              { currentNav === 'Leaderboard' && <LeaderboardNav
+                wins={wins}
+                totalGames={totalGames}
+                username={username}
+                setUsername={setUsername}
+              /> }
             </div>
           </main>
         </div>

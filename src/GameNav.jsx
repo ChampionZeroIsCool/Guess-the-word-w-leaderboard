@@ -153,7 +153,7 @@ export function GameNav(props) {
             <div className='flex relative items-center pb-1'>
                 <p>Enter a letter:</p>
                 <div className='relative ml-1'>
-                    <input type='text' value={guess} name='inputGuess' onChange={handleChange} onKeyDown={handleKeyDown} onInput={(e) => { e.target.value = e.target.value.toUpperCase().replace(/[^A-Za-z]/g, '') }} className='text-2xl border-2 border-black rounded-xl p-2 ml-2' placeholder='A' maxLength={1} readOnly={showSummary} />
+                    <input type='text' value={guess} name='inputGuess' onChange={handleChange} onKeyDown={handleKeyDown} onInput={(e) => { e.target.value = e.target.value.toUpperCase().replace(/[^A-Za-z]/g, '') }} className='border-2 border-black rounded-xl w-40 p-2 ml-2' placeholder='A' maxLength={1} readOnly={showSummary} />
                     <button onClick={handleButtonClick} className='cursor-pointer absolute right-1.5 top-1/2 -translate-y-1/2 border-2 border-black p-1.5 px-1.75 rounded-xl'>
                         <ArrowRightIcon className='h-6 w-6 stroke-2 hover:stroke-4' />
                     </button>
